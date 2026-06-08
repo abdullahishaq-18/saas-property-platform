@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.listing import Listing
+from app.models.user import User
 from app.schemas.listing import ListingCreate
 
 logger = logging.getLogger(__name__)
@@ -63,8 +64,8 @@ class ListingService:
     def list_listings(self) -> list[Listing]:
         return self.db.query(Listing).order_by(Listing.id.desc()).all()
 
-    def create_listing(self, payload: ListingCreate) -> Listing:
-        listing = Listing(**self._prepare_listing_data(payload))
+    def create_listing(self, payload: ListingCreate, owner: User) -> Listing:
+        listing = Listing(**self._prepare_listing_data(payload), owner_id=owner.id)
         try:
             self.db.add(listing)
             self.db.commit()

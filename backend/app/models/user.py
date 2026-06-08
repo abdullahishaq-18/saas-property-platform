@@ -15,3 +15,4 @@ class User(Base):
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     leads: Mapped[list["Lead"]] = relationship(back_populates="owner")
+    listings: Mapped[list["Listing"]] = relationship(back_populates="owner")

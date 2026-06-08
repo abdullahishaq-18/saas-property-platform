@@ -1,0 +1,6 @@
+Alembic migration environment for the FastAPI backend.
+
+Run commands from the backend directory:
+
+    alembic upgrade head
+    alembic downgrade base

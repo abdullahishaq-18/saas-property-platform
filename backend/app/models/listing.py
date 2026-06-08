@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, Integer, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -16,6 +16,7 @@ class Listing(Base):
     size: Mapped[int] = mapped_column(Integer)
     description: Mapped[str] = mapped_column(Text, default="")
     generated_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now()
@@ -25,3 +26,5 @@ class Listing(Base):
         server_default=func.now(),
         onupdate=func.now()
     )
+
+    owner: Mapped["User"] = relationship(back_populates="listings")
