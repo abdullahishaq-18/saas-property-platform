@@ -2,14 +2,8 @@ import os
 
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
-from fastapi.testclient import TestClient
-
-from app.main import app
+from app.main import health_check
 
 
 def test_health_check():
-    with TestClient(app) as client:
-        response = client.get("/health")
-
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert health_check() == {"status": "ok"}

@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api import api_router
 from app.core.config import settings
 from app.db.init_db import init_db
-from app.routes import listings
 
 
 @asynccontextmanager
@@ -31,5 +30,4 @@ def health_check():
     return {"status": "ok"}
 
 
-app.include_router(listings.router, prefix="/listings", tags=["listings"])
 app.include_router(api_router, prefix=settings.API_V1_STR)
