@@ -1,3 +1,5 @@
+from fastapi import HTTPException, status
+from app.schemas.listing import ListingCreate, ListingUpdate
 import logging
 from typing import Any
 
@@ -9,7 +11,7 @@ from app.core.config import settings
 from app.models.listing import Listing
 from app.models.user import User
 from app.schemas.listing import ListingCreate
-
+from app.services.ai_service import generate_property_description
 logger = logging.getLogger(__name__)
 
 
@@ -57,6 +59,7 @@ def _build_listing_description_prompt(listing_data: dict[str, Any]) -> str:
     )
 
 
+
 class ListingService:
     def __init__(self, db: Session):
         self.db = db
@@ -64,8 +67,23 @@ class ListingService:
     def list_listings(self) -> list[Listing]:
         return self.db.query(Listing).order_by(Listing.id.desc()).all()
 
+    def get_listing(self, listing_id: int) -> Listing:
+        listing = self.db.get(Listing, listing_id)
+
+        if listing is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Listing not found"
+            )
+
+        return listing
+
     def create_listing(self, payload: ListingCreate, owner: User) -> Listing:
-        listing = Listing(**self._prepare_listing_data(payload), owner_id=owner.id)
+        listing = Listing(
+            **self._prepare_listing_data(payload),
+            owner_id=owner.id
+        )
+
         try:
             self.db.add(listing)
             self.db.commit()
@@ -76,12 +94,90 @@ class ListingService:
 
         return listing
 
+    def update_listing(
+        self,
+        listing_id: int,
+        payload: ListingUpdate,
+        current_user: User
+    ) -> Listing:
+
+        listing = self.get_listing(listing_id)
+
+        if listing.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to modify this listing"
+            )
+
+        updates = payload.model_dump(exclude_unset=True)
+
+        for field, value in updates.items():
+            setattr(listing, field, value)
+
+        try:
+            self.db.commit()
+            self.db.refresh(listing)
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
+
+        return listing
+
+    def delete_listing(
+        self,
+        listing_id: int,
+        current_user: User
+    ) -> None:
+
+        listing = self.get_listing(listing_id)
+
+        if listing.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to delete this listing"
+            )
+
+        try:
+            self.db.delete(listing)
+            self.db.commit()
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
+
+    def generate_description(
+        self,
+        listing_id: int,
+        current_user: User
+    ) -> Listing:
+
+        listing = self.get_listing(listing_id)
+    
+        if listing.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized"
+            )
+
+        description = generate_property_description(
+            listing.title,
+            listing.location,
+            listing.price,
+            listing.size
+        )
+        listing.generated_description = description
+
+        self.db.commit()
+        self.db.refresh(listing)
+
+        return listing
+    
     def _prepare_listing_data(self, payload: ListingCreate) -> dict[str, Any]:
         data = payload.model_dump()
         data["description"] = data.get("description", "").strip()
 
         if not data["description"]:
             generated_description = generate_listing_description(data)
+
             if generated_description:
                 data["description"] = generated_description
                 data["generated_description"] = generated_description

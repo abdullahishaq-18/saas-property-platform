@@ -13,10 +13,15 @@ class LeadBase(BaseModel):
 class LeadCreate(LeadBase):
     pass
 
+class LeadUpdate(BaseModel):
+    name: str | None = None
+    email: EmailStr | None = None
+    source: str | None = None
+    status: str | None = None
 
 class LeadRead(LeadBase):
     id: int
     owner_id: int
     created_at: datetime
-
+    lead_score: str | None = None
     model_config = {"from_attributes": True}

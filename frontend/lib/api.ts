@@ -27,6 +27,10 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}) {
     throw new Error(errorBody.detail ?? "Request failed");
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json() as Promise<T>;
 }
 
@@ -42,9 +46,25 @@ export type Listing = {
   price: number;
   size: number;
   description: string;
-  generated_description: string | null;
+  generated_description?: string;
   created_at: string;
   updated_at: string;
+};
+
+export type ListingCreate = {
+  title: string;
+  location: string;
+  price: number;
+  size: number;
+  description: string;
+};
+
+export type ListingUpdate = {
+  title?: string;
+  location?: string;
+  price?: number;
+  size?: number;
+  description?: string;
 };
 
 export type Lead = {
@@ -53,4 +73,14 @@ export type Lead = {
   email: string;
   source: string;
   status: string;
+  lead_score: string | null;
 };
+
+export type LeadCreate = {
+  name: string;
+  email: string;
+  source: string;
+  status: string;
+};
+
+export type LeadUpdate = Partial<LeadCreate>;

@@ -1,16 +1,27 @@
 "use client";
 
+import { useEffect } from "react";
+import { getToken } from "@/lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { apiFetch, AuthResponse } from "@/lib/api";
 import { setToken } from "@/lib/auth";
 
+
+
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (getToken()) {
+      router.push("/dashboard");
+    }
+  }, [router]);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
+    console.log("SUBMIT FIRED");
     event.preventDefault();
     setError("");
 
@@ -80,7 +91,7 @@ export default function RegisterPage() {
         </button>
 
         <p className="mt-4 text-center text-sm text-slate-600">
-          Already registered?{" "}
+          Already have an account?{" "}
           <Link className="font-medium text-brand-700" href="/login">
             Sign in
           </Link>

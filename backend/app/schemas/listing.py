@@ -14,6 +14,12 @@ class ListingBase(BaseModel):
 class ListingCreate(ListingBase):
     pass
 
+class ListingUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    location: str | None = Field(default=None, min_length=1, max_length=255)
+    price: float | None = Field(default=None, gt=0)
+    size: int | None = Field(default=None, gt=0)
+    description: str | None = Field(default=None, max_length=5000)
 
 class ListingRead(ListingBase):
     id: int
