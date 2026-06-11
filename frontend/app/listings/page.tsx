@@ -10,6 +10,11 @@ export default function ListingsPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [analysis, setAnalysis] =
+    useState<any>(null);
+
+  const [selectedListing, setSelectedListing] =
+    useState<string>("");
 
   async function deleteListing(id: number) {
     try {
@@ -22,6 +27,34 @@ export default function ListingsPage() {
       );
     } catch {
       alert("Failed to delete listing");
+    }
+  }
+
+  async function analyzeInvestment(
+    id: number,
+    title: string
+  ) {
+    try {
+      const result = await apiFetch<{
+        analysis: {
+          score: number;
+          pros: string[];
+          cons: string[];
+          recommendation: string;
+        };
+      }>(
+        `/api/v1/listings/${id}/investment-analysis`,
+        {
+          method: "POST"
+        }
+      );
+
+      setAnalysis(result.analysis);
+      setSelectedListing(title);
+    } catch {
+      alert(
+        "Failed to generate investment analysis"
+      );
     }
   }
 
@@ -171,9 +204,7 @@ export default function ListingsPage() {
                   <td className="px-4 py-4 space-x-3">
                     <button
                       onClick={() =>
-                        generateDescription(
-                          listing.id
-                        )
+                        generateDescription(listing.id)
                       }
                       className="text-blue-600 hover:text-blue-800"
                     >
@@ -184,6 +215,18 @@ export default function ListingsPage() {
                       listing={listing}
                       onUpdated={updateListing}
                     />
+
+                    <button
+                      onClick={() =>
+                        analyzeInvestment(
+                          listing.id,
+                          listing.title
+                        )
+                      }
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      Analyze Investment
+                    </button>
 
                     <button
                       onClick={() =>
@@ -209,6 +252,76 @@ export default function ListingsPage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {analysis && (
+        <div className="mt-6 rounded-lg border border-slate-200 bg-white p-6">
+
+          <h3 className="mb-4 text-xl font-bold">
+            AI Investment Analysis
+          </h3>
+
+          <p className="mb-4 text-sm text-slate-500">
+            Property: {selectedListing}
+          </p>
+
+          <div className="mb-6 rounded-lg bg-blue-50 p-4">
+            <p className="text-sm text-slate-500">
+              Investment Score
+            </p>
+
+            <p className="text-3xl font-bold text-blue-700">
+              {analysis.score}/10
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+
+            <div>
+              <h4 className="mb-3 font-semibold text-green-700">
+                Pros
+              </h4>
+
+              <ul className="space-y-2">
+                {analysis.pros.map(
+                  (item: string) => (
+                    <li key={item}>
+                      ✅ {item}
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="mb-3 font-semibold text-red-700">
+                Cons
+              </h4>
+
+              <ul className="space-y-2">
+                {analysis.cons.map(
+                  (item: string) => (
+                    <li key={item}>
+                      ⚠️ {item}
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+
+          </div>
+
+          <div className="mt-6">
+            <h4 className="mb-2 font-semibold">
+              Recommendation
+            </h4>
+
+            <p>
+              {analysis.recommendation}
+            </p>
+          </div>
+
         </div>
       )}
     </AppShell>

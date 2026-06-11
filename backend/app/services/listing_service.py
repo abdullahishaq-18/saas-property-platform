@@ -12,6 +12,7 @@ from app.models.listing import Listing
 from app.models.user import User
 from app.schemas.listing import ListingCreate
 from app.services.ai_service import generate_property_description
+from app.services.ai_service import analyze_investment
 logger = logging.getLogger(__name__)
 
 
@@ -185,3 +186,26 @@ class ListingService:
                 data["generated_description"] = None
 
         return data
+    
+    def investment_analysis(
+        self,
+        listing_id: int,
+        current_user: User
+    ):
+
+        listing = self.get_listing(
+            listing_id
+        )
+
+        if listing.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized"
+            )
+
+        return analyze_investment(
+            listing.title,
+            listing.location,
+            listing.price,
+            listing.size
+        )

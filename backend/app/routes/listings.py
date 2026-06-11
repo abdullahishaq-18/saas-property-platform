@@ -127,3 +127,25 @@ def generate_listing_description(
         listing_id,
         current_user
     )
+
+@router.post(
+    "/{listing_id}/investment-analysis"
+)
+def investment_analysis(
+    listing_id: int,
+    listing_service: Annotated[
+        ListingService,
+        Depends(get_listing_service)
+    ],
+    current_user: Annotated[
+        User,
+        Depends(get_current_user)
+    ]
+):
+    return {
+        "analysis":
+        listing_service.investment_analysis(
+            listing_id,
+            current_user
+        )
+    }

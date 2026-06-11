@@ -1,5 +1,6 @@
 from google import genai
 from app.core.config import settings
+import json
 
 client = genai.Client(
     api_key=settings.GEMINI_API_KEY
@@ -83,3 +84,54 @@ Size: {size} sq ft
     )
 
     return response.text
+
+def analyze_investment(
+    title: str,
+    location: str,
+    price: float,
+    size: int
+) -> str:
+
+    prompt = f"""
+Analyze this commercial property.
+
+Title: {title}
+Location: {location}
+Price: {price}
+Size: {size}
+
+Investment score MUST be an integer between 1 and 10.
+
+Return ONLY JSON:
+
+{{
+  "score": 0,
+  "pros": [],
+  "cons": [],
+  "recommendation": ""
+}}
+"""
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    print("GEMINI RESPONSE:")
+    print(response.text)
+
+    raw = response.text.strip()
+
+    raw = raw.replace(
+        "```json",
+        ""
+    )
+
+    raw = raw.replace(
+        "```",
+        ""
+    )
+
+    raw = raw.strip()
+
+    return json.loads(raw)
