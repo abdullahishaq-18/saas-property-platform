@@ -1,55 +1,68 @@
-<section className="mt-8 rounded-lg border border-slate-200 bg-white p-6 shadow-soft">
+# AI-Powered Commercial Real Estate SaaS
 
-  <h3 className="text-lg font-semibold">
-    Recent AI Activity
-  </h3>
+An AI-powered commercial property marketplace and CRM platform built with FastAPI, Next.js, PostgreSQL, and Gemini AI.
 
-  <p className="mt-1 text-sm text-slate-500">
-    Latest AI-generated insights and actions.
-  </p>
+## Features
 
-  <div className="mt-6 divide-y divide-slate-100">
+### Property Management
 
-    <div className="flex items-center justify-between py-3">
-      <p className="text-sm font-medium">
-        🤖 Generated property description
-      </p>
+* Create, update, and delete commercial property listings
+* Property inventory management
+* AI-generated property descriptions
 
-      <span className="text-xs text-slate-500">
-        Today
-      </span>
-    </div>
+### Lead Management
 
-    <div className="flex items-center justify-between py-3">
-      <p className="text-sm font-medium">
-        🔥 Lead scored as WARM
-      </p>
+* Lead capture and CRM
+* Lead status tracking
+* AI lead scoring (HOT / WARM / COLD)
 
-      <span className="text-xs text-slate-500">
-        Today
-      </span>
-    </div>
+### AI Features
 
-    <div className="flex items-center justify-between py-3">
-      <p className="text-sm font-medium">
-        📧 Follow-up email generated
-      </p>
+* AI Property Description Generator
+* AI Investment Analysis
+* AI Lead Scoring
+* AI Follow-up Email Generator
 
-      <span className="text-xs text-slate-500">
-        Today
-      </span>
-    </div>
+### Dashboard Analytics
 
-    <div className="flex items-center justify-between py-3">
-      <p className="text-sm font-medium">
-        📈 Investment analysis completed
-      </p>
+* Listings overview
+* Lead analytics
+* AI activity feed
 
-      <span className="text-xs text-slate-500">
-        Today
-      </span>
-    </div>
+## Tech Stack
 
-  </div>
+### Frontend
 
-</section>
+* Next.js
+* TypeScript
+* Tailwind CSS
+
+### Backend
+
+* FastAPI
+* SQLAlchemy
+* PostgreSQL
+
+### AI
+
+* Google Gemini API
+
+## Architecture
+
+Frontend → FastAPI API → PostgreSQL
+
+AI Services:
+
+* Property Description Generation
+* Investment Analysis
+* Lead Scoring
+* Follow-up Email Generation
+
+## Future Improvements
+
+* Automated lead nurturing
+* AI property valuation
+* Email automation workflows
+* Multi-user organizations
+* Stripe subscriptions
+* Deployment monitoring
